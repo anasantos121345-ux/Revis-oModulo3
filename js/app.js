@@ -756,6 +756,35 @@
   }
 
 
+  /* ---------------- confirmação dentro da página ---------------- */
+  // Substitui window.confirm(), que alguns ambientes (como páginas incorporadas) bloqueiam.
+
+  function confirmar(mensagem, textoOk, aoConfirmar) {
+    var anterior = document.activeElement;
+    var ov = document.createElement("div");
+    ov.className = "confirm-overlay";
+    ov.innerHTML = '<div class="confirm-box" role="alertdialog" aria-modal="true" aria-labelledby="confirm-msg">' +
+      '<p id="confirm-msg"></p><div class="confirm-actions">' +
+      '<button type="button" class="btn btn-ghost" data-c="nao">Cancelar</button>' +
+      '<button type="button" class="btn btn-primary" data-c="sim"></button></div></div>';
+    ov.querySelector("#confirm-msg").textContent = mensagem;
+    ov.querySelector('[data-c="sim"]').textContent = textoOk;
+    function fechar() {
+      ov.remove();
+      document.removeEventListener("keydown", teclado);
+      if (anterior && anterior.focus && document.contains(anterior)) anterior.focus();
+    }
+    function teclado(e) { if (e.key === "Escape") fechar(); }
+    ov.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-c]");
+      if (e.target === ov || (b && b.dataset.c === "nao")) fechar();
+      else if (b) { fechar(); aoConfirmar(); }
+    });
+    document.addEventListener("keydown", teclado);
+    document.body.appendChild(ov);
+    ov.querySelector('[data-c="sim"]').focus();
+  }
+
   /* ---------------- eventos (delegação) ---------------- */
 
   app.addEventListener("click", function (ev) {
@@ -829,31 +858,39 @@
         var areas = document.getElementById("areas");
         if (areas) areas.scrollIntoView({ behavior: "smooth", block: "start" });
       } else if (acao.dataset.action === "sim-finalizar" && atual && atual.simulado) {
-        var sf = statsSimulado(atual.cat, atual.simulado);
-        if (sf.branco && !window.confirm("Você deixou " + sf.branco + " questão(ões) em branco. Finalizar mesmo assim?")) return;
-        atual.simulado.finalizado = true;
-        atual.simulado.fim = Date.now();
-        salvar();
-        renderSimulado(atual.cat);
-        var res = document.getElementById("sim-resultado");
-        if (res) res.scrollIntoView({ behavior: "smooth", block: "start" });
-        coracoes();
+        var simF = atual.simulado, catF = atual.cat;
+        var finalizar = function () {
+          simF.finalizado = true;
+          simF.fim = Date.now();
+          salvar();
+          renderSimulado(catF);
+          var res = document.getElementById("sim-resultado");
+          if (res) res.scrollIntoView({ behavior: "smooth", block: "start" });
+          coracoes();
+        };
+        var sf = statsSimulado(catF, simF);
+        if (sf.branco) confirmar("Você deixou " + sf.branco + (sf.branco === 1 ? " questão" : " questões") + " em branco. Elas contam como erro. Finalizar mesmo assim?", "Finalizar", finalizar);
+        else finalizar();
       } else if (acao.dataset.action === "sim-novo" && atual && atual.simulado) {
-        var sAt = atual.simulado;
-        if (!sAt.finalizado && Object.keys(sAt.respostas).length &&
-            !window.confirm("Começar um novo simulado? As respostas do atual serão descartadas.")) return;
-        store[chaveSim(atual.cat)] = sortearSimulado(atual.cat);
-        salvar();
-        renderSimulado(atual.cat);
-        window.scrollTo(0, 0);
+        var simN = atual.simulado, catN = atual.cat;
+        var novo = function () {
+          store[chaveSim(catN)] = sortearSimulado(catN);
+          salvar();
+          renderSimulado(catN);
+          window.scrollTo(0, 0);
+        };
+        if (!simN.finalizado && Object.keys(simN.respostas).length) confirmar("Começar um novo simulado? As respostas do atual serão descartadas.", "Começar novo", novo);
+        else novo();
       } else if (acao.dataset.action === "refazer" && atual && atual.aula) {
-        if (!window.confirm("Apagar suas respostas objetivas desta aula e tentar de novo? As discursivas continuam salvas.")) return;
-        estado(atual.cat, atual.aula).obj = {};
-        salvar();
-        renderAula(atual.cat, atual.idx);
-        observarSecoes();
-        var obj = document.getElementById("sec-objetivas");
-        if (obj) obj.scrollIntoView({ behavior: "smooth", block: "start" });
+        var catR = atual.cat, aulaR = atual.aula, idxR = atual.idx;
+        confirmar("Apagar suas respostas objetivas desta aula e tentar de novo? As discursivas continuam salvas.", "Refazer", function () {
+          estado(catR, aulaR).obj = {};
+          salvar();
+          renderAula(catR, idxR);
+          observarSecoes();
+          var obj = document.getElementById("sec-objetivas");
+          if (obj) obj.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
       }
     }
   });

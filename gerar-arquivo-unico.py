@@ -38,3 +38,15 @@ with open(destino, "w", encoding="utf-8") as f:
     f.write(html)
 
 print("Gerado:", destino, "| scripts embutidos:", n, "| tamanho: %.0f KB" % (len(html.encode("utf-8")) / 1024))
+
+# Versão para publicar como página do claude.ai: a plataforma já coloca doctype, <html>, <head>,
+# <body>, charset e viewport, então o arquivo leva só o conteúdo (título, estilos, página e scripts).
+frag = html
+for padrao in [r"<!doctype html>\s*", r"<html[^>]*>\s*", r"\s*</html>", r"<head>\s*", r"\s*</head>",
+               r"<body>\s*", r"\s*</body>", r'<meta charset="utf-8">\s*', r'<meta name="viewport"[^>]*>\s*']:
+    frag = re.sub(padrao, "", frag, count=1, flags=re.I)
+frag = re.sub(r"<title>.*?</title>", "<title>Revisão Machine Learning</title>", frag, count=1)
+destino2 = os.path.join(RAIZ, "publicar", "artifact.html")
+with open(destino2, "w", encoding="utf-8") as f:
+    f.write(frag)
+print("Gerado:", destino2)
