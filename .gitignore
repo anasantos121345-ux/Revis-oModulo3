@@ -1,0 +1,13 @@
+# materiais das aulas (não publicar)
+*.pdf
+*.pptx
+/design/
+/liderança/
+/matemática/
+/negócios/
+/programação/
+
+# sistema
+Thumbs.db
+desktop.ini
+.DS_Store
