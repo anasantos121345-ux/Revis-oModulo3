@@ -11,3 +11,6 @@
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# gerado por gerar-arquivo-unico.py
+/publicar/

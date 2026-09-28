@@ -84,3 +84,7 @@ Cada aula tem resumo, 10 questões objetivas (com explicação da correta e de c
 ## Simulados
 
 Cada área tem um simulado (`#/<area>/simulado`) com 20 questões objetivas sorteadas de forma equilibrada entre todas as aulas da área. A correção só aparece ao finalizar, junto com o desempenho por aula. As questões vêm das próprias aulas, então uma aula nova entra no sorteio automaticamente. A quantidade fica em `SIM_QTD`, em `js/app.js`.
+
+## Publicar subindo um arquivo só
+
+`python gerar-arquivo-unico.py` gera `publicar/index.html`, com o site inteiro (CSS, JS e aulas) num único arquivo. Para publicar no GitHub Pages sem usar o terminal, basta subir esse arquivo pelo navegador. Rode o script de novo sempre que mudar alguma aula ou estilo.
