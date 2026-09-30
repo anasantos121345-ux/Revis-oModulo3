@@ -13,8 +13,13 @@
   "use strict";
 
   var DADOS = window.Plataforma || { categorias: [] };
-  var CATS = DADOS.categorias;
-  var STORAGE_KEY = "minha-plataforma-estudos:v1";
+  // Configuração opcional da página (ex.: sprint3.html). Sem ela, vale o site completo.
+  var CFG = window.PlataformaConfig || {};
+  var NOME_SITE = CFG.nomeSite || "Plataforma de Revisão · Módulo Machine Learning";
+  var CATS = CFG.ocultarAreasVazias
+    ? DADOS.categorias.filter(function (c) { return c.aulas.length; })
+    : DADOS.categorias;
+  var STORAGE_KEY = CFG.storageKey || "minha-plataforma-estudos:v1";
   var LETRAS = ["A", "B", "C", "D", "E", "F"];
 
   var app = document.getElementById("app");
@@ -142,7 +147,7 @@
   /* ---------------- página inicial ---------------- */
 
   function renderHome() {
-    document.title = "Plataforma de Revisão · Módulo Machine Learning";
+    document.title = NOME_SITE;
     var totalAulas = CATS.reduce(function (s, c) { return s + c.aulas.length; }, 0);
     var concluidas = CATS.reduce(function (s, c) { return s + progressoCategoria(c).concluidas; }, 0);
 
@@ -160,7 +165,7 @@
         "</article>";
     }).join("");
 
-    var palavras = ["aprenda", "pratique", "revise", "erre sem medo", "tente de novo", "evolua"];
+    var palavras = CFG.faixa || ["aprenda", "pratique", "revise", "erre sem medo", "tente de novo", "evolua"];
     var faixa = palavras.concat(palavras).concat(palavras).concat(palavras)
       .map(function (p) { return "<span>" + p + "</span><span aria-hidden=\"true\">♡</span>"; }).join("");
 
@@ -168,12 +173,13 @@
       '<div class="view">' +
       '<section class="hero">' +
       "<div>" +
-      '<span class="sticker">✦ canal de estudos · ao vivo ✦</span>' +
-      "<h1>Plataforma de Revisão <em>Módulo Machine Learning</em></h1>" +
-      '<p class="subtitle">Aprenda, pratique e acompanhe sua evolução.</p>' +
+      '<span class="sticker">' + (CFG.selo || "✦ canal de estudos · ao vivo ✦") + "</span>" +
+      "<h1>" + (CFG.tituloHTML || "Plataforma de Revisão <em>Módulo Machine Learning</em>") + "</h1>" +
+      '<p class="subtitle">' + (CFG.subtitulo || "Aprenda, pratique e acompanhe sua evolução.") + "</p>" +
       '<div class="hero-actions">' +
       '<a class="btn btn-primary" href="' + (CATS[0] ? linkCat(CATS[0]) : "#/") + '">Começar agora <span aria-hidden="true">→</span></a>' +
-      '<button type="button" class="btn btn-soft" data-action="ver-areas">Ver as 5 áreas</button>' +
+      '<button type="button" class="btn btn-soft" data-action="ver-areas">Ver as ' + CATS.length + " áreas</button>" +
+      (CFG.entrega ? '<button type="button" class="btn btn-soft" data-action="ver-entrega">Ver a entrega</button>' : "") +
       "</div>" +
       '<div class="hero-stats">' +
       '<div class="hero-stat"><strong>' + CATS.length + "</strong>áreas</div>" +
@@ -184,12 +190,72 @@
       "</div>" +
       "</section>" +
       '<div class="marquee" aria-hidden="true"><div class="marquee-track">' + faixa + "</div></div>" +
+      secaoEntrega() +
       '<section id="areas" style="scroll-margin-top: calc(var(--header-h) + 20px)">' +
       '<h2 class="section-title">Escolha sua área</h2>' +
       '<p class="section-lead">Cada área tem aulas com resumo, 10 questões objetivas com correção na hora e 5 discursivas.</p>' +
       '<div class="cat-grid">' + cards + "</div>" +
       "</section>" +
       "</div>";
+  }
+
+  /* ---------------- entrega da sprint (opcional, via CFG.entrega) ---------------- */
+
+  function aulaPorRef(ref) {
+    var cat = catPorId(ref.cat);
+    if (!cat) return null;
+    for (var i = 0; i < cat.aulas.length; i++) {
+      if (cat.aulas[i].id === ref.aula) return { cat: cat, idx: i, aula: cat.aulas[i] };
+    }
+    return null;
+  }
+
+  function secaoEntrega() {
+    var E = CFG.entrega;
+    if (!E) return "";
+    var feitos = store.entrega || {};
+    var total = 0, marcados = 0;
+    var grupos = E.grupos.map(function (g) {
+      var itens = g.itens.map(function (it) {
+        total++;
+        var on = !!feitos[it.id];
+        if (on) marcados++;
+        var links = (it.aulas || []).map(function (ref) {
+          var a = aulaPorRef(ref);
+          return a ? '<a class="entrega-link" href="' + linkAula(a.cat, a.idx) + '">' + a.cat.icone + " " + esc(a.aula.titulo) + " →</a>" : "";
+        }).join("");
+        return '<li class="entrega-item' + (on ? " is-done" : "") + '">' +
+          '<input type="checkbox" id="entrega-' + it.id + '" data-entrega="' + it.id + '"' + (on ? " checked" : "") + ">" +
+          '<div class="entrega-texto"><label for="entrega-' + it.id + '">' + it.texto + "</label>" +
+          (it.pontos ? '<span class="entrega-pontos">' + it.pontos + "</span>" : "") +
+          (links ? '<div class="entrega-links">' + links + "</div>" : "") + "</div></li>";
+      }).join("");
+      return '<div class="entrega-grupo"><h3>' + g.titulo + "</h3><ul>" + itens + "</ul></div>";
+    }).join("");
+    var pct = total ? Math.round((marcados / total) * 100) : 0;
+    return '<section id="entrega" class="panel entrega" style="scroll-margin-top: calc(var(--header-h) + 20px)">' +
+      '<h2 class="section-head"><span aria-hidden="true">📦</span> ' + E.titulo + "</h2>" +
+      '<p class="section-sub">' + E.descricao + "</p>" +
+      '<div class="progress-box"><div class="progress-row"><strong>Checklist: <span data-entrega-cont>' + marcados + "/" + total + "</span> itens prontos</strong></div>" +
+      '<div class="bar"><span data-entrega-bar style="width:' + pct + '%"></span></div></div>' +
+      '<div class="entrega-grid">' + grupos + "</div>" +
+      (E.aviso ? '<div class="callout callout-cuidado"><div class="callout-title">⚠️ Atenção</div><p>' + E.aviso + "</p></div>" : "") +
+      "</section>";
+  }
+
+  function atualizarEntrega(input) {
+    var feitos = store.entrega || (store.entrega = {});
+    if (input.checked) feitos[input.dataset.entrega] = true;
+    else delete feitos[input.dataset.entrega];
+    salvar();
+    input.closest(".entrega-item").classList.toggle("is-done", input.checked);
+    var todos = app.querySelectorAll("[data-entrega]");
+    var n = 0;
+    todos.forEach(function (i) { if (i.checked) n++; });
+    var cont = app.querySelector("[data-entrega-cont]");
+    if (cont) cont.textContent = n + "/" + todos.length;
+    var bar = app.querySelector("[data-entrega-bar]");
+    if (bar) bar.style.width = (todos.length ? (n / todos.length) * 100 : 0) + "%";
   }
 
   /* ---------------- lista de aulas ---------------- */
@@ -201,7 +267,7 @@
   }
 
   function renderCategoria(cat) {
-    document.title = cat.nome + " · Plataforma de Revisão · Módulo Machine Learning";
+    document.title = cat.nome + " · " + NOME_SITE;
     var p = progressoCategoria(cat);
 
     var lista = cat.aulas.map(function (a, i) {
@@ -539,7 +605,7 @@
   }
 
   function render404() {
-    document.title = "Página não encontrada · Plataforma de Revisão · Módulo Machine Learning";
+    document.title = "Página não encontrada · " + NOME_SITE;
     app.innerHTML = '<div class="view empty"><div class="big" aria-hidden="true">📺</div>' +
       "<h1>Fora do ar…</h1><p>Esse canal não existe. Que tal voltar para a programação normal?</p>" +
       '<a class="btn btn-primary" href="#/">Voltar ao início</a></div>';
@@ -854,7 +920,10 @@
 
     var acao = alvo.closest("[data-action]");
     if (acao) {
-      if (acao.dataset.action === "ver-areas") {
+      if (acao.dataset.action === "ver-entrega") {
+        var ent = document.getElementById("entrega");
+        if (ent) ent.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else if (acao.dataset.action === "ver-areas") {
         var areas = document.getElementById("areas");
         if (areas) areas.scrollIntoView({ behavior: "smooth", block: "start" });
       } else if (acao.dataset.action === "sim-finalizar" && atual && atual.simulado) {
@@ -893,6 +962,10 @@
         });
       }
     }
+  });
+
+  app.addEventListener("change", function (ev) {
+    if (ev.target.matches && ev.target.matches("[data-entrega]")) atualizarEntrega(ev.target);
   });
 
   app.addEventListener("input", function (ev) {

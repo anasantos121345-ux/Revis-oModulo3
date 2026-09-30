@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Revisão Sprint 3 · Módulo Machine Learning</title>
+  <meta name="description" content="Os assuntos da Sprint 3 e a entrega do notebook de comparação de modelos.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23ed2788'/%3E%3Ctext x='50' y='66' font-size='46' font-family='Arial' font-weight='bold' text-anchor='middle' fill='%23fff'%3E3%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    /* aplica o tema salvo antes de desenhar a página (evita "piscar") */
+    try { var t = localStorage.getItem("plataforma-tema"); if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#/" aria-label="Revisão Sprint 3 — página inicial">
+        <span class="brand-mark" aria-hidden="true">3</span>
+        <span class="brand-text">Revisão Sprint 3 <em>Módulo Machine Learning</em></span>
+      </a>
+      <nav id="cat-nav" class="cat-nav" aria-label="Áreas de estudo"></nav>
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Mudar para o tema claro" title="Mudar para o tema claro">
+        <span class="theme-icon theme-icon-sun" aria-hidden="true">☀️</span>
+        <span class="theme-icon theme-icon-moon" aria-hidden="true">🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="app" tabindex="-1"></main>
+
+  <footer class="site-footer">
+    <p><span aria-hidden="true">✦</span> feito com ♡ para estudar sem pressa <span aria-hidden="true">✦</span></p>
+    <p class="footer-small">Feito por Ana Camelão · seu progresso fica salvo neste navegador · <a class="footer-link" href="index.html">ver o módulo completo →</a></p>
+  </footer>
+
+  <!-- Categorias + só as aulas da Sprint 3 (ConteúdosSprint3.pdf) -->
+  <script src="data/categorias.js"></script>
+  <script src="data/design/04-storytelling-com-dados.js"></script>
+  <script src="data/lideranca/02-feedback-em-projetos.js"></script>
+  <script src="data/negocios/05-design-organizacional.js"></script>
+  <script src="data/negocios/06-governanca-startups.js"></script>
+  <script src="data/programacao/08-problemas-comuns-modelagem.js"></script>
+  <script src="data/programacao/09-hiperparametros-explicabilidade.js"></script>
+  <script src="data/programacao/10-automl-pycaret.js"></script>
+
+  <!-- Configuração desta página -->
+  <script>
+    (function () {
+      // descrições das áreas focadas na Sprint 3
+      var desc = {
+        design: "Storytelling com dados: narrativa, título-mensagem, público e a demo do projeto.",
+        lideranca: "Feedback em projetos: modelo SCI, por que o feedback falha e vieses de avaliação.",
+        negocios: "Design organizacional e governança de projetos e startups (acordo de sócios, vesting, RACI).",
+        programacao: "Problemas comuns na modelagem, hiperparâmetros, explicabilidade com SHAP e AutoML com PyCaret."
+      };
+      Plataforma.categorias.forEach(function (c) { if (desc[c.id]) c.descricao = desc[c.id]; });
+      Plataforma.categorias.find(function (c) { return c.id === "programacao"; }).nome = "Computação";
+
+      window.PlataformaConfig = {
+        nomeSite: "Revisão Sprint 3 · Módulo Machine Learning",
+        storageKey: "plataforma-sprint3:v1",
+        ocultarAreasVazias: true,
+        selo: "✦ sprint 3 · foco total ✦",
+        tituloHTML: "Revisão <em>Sprint 3</em>",
+        subtitulo: "Os 7 assuntos da Sprint 3 e a entrega do notebook de comparação de modelos, num lugar só.",
+        faixa: ["overfitting", "data leakage", "grid search", "SHAP", "PyCaret", "feedback SCI", "storytelling", "vesting"],
+        entrega: {
+          titulo: "Entrega da Sprint 3",
+          descricao: "Notebook no Colab com a comparação de modelos e a Seção 4.4 da documentação. " +
+            "<strong>Pontuação:</strong> escolha das métricas e justificativa, até 3 pts · modelos otimizados, até 7 pts " +
+            "(modelos e métricas com explicabilidade, até 3 · otimização dos hiperparâmetros, até 2 · clareza entre texto e código, até 2). " +
+            "Marque cada item quando estiver pronto.",
+          aviso: "Problemas de escrita (ortografia, gramática e composição), uso não revisado de ChatGPT e afins ou falta de citações na norma ABNT podem descontar até 3,0 pontos no total.",
+          grupos: [
+            {
+              titulo: "📓 Notebook (Colab): comparação de modelos",
+              itens: [
+                { id: "metricas", texto: "Escolher as métricas de comparação pelo que mais importa medir no problema e justificar a escolha", pontos: "até 3 pts",
+                  aulas: [{ cat: "programacao", aula: "problemas-comuns-modelagem" }, { cat: "programacao", aula: "automl-pycaret" }] },
+                { id: "modelos", texto: "Apresentar pelo menos três modelos candidatos, cada um com suas métricas", pontos: "parte dos 3 pts",
+                  aulas: [{ cat: "programacao", aula: "problemas-comuns-modelagem" }, { cat: "programacao", aula: "automl-pycaret" }] },
+                { id: "explicabilidade", texto: "Mostrar a explicabilidade de pelo menos um modelo (se supervisionado), por exemplo com SHAP", pontos: "parte dos 3 pts",
+                  aulas: [{ cat: "programacao", aula: "hiperparametros-explicabilidade" }] },
+                { id: "tuning", texto: "Otimizar os hiperparâmetros com um algoritmo de busca (Grid Search ou Random Search)", pontos: "até 2 pts",
+                  aulas: [{ cat: "programacao", aula: "hiperparametros-explicabilidade" }, { cat: "programacao", aula: "automl-pycaret" }] },
+                { id: "clareza", texto: "Integrar com clareza o texto explicativo e o código de cada implementação", pontos: "até 2 pts",
+                  aulas: [{ cat: "design", aula: "storytelling-com-dados" }] }
+              ]
+            },
+            {
+              titulo: "📄 Documentação: Seção 4.4",
+              itens: [
+                { id: "secao44", texto: "Preencher a Seção 4.4 da documentação com os resultados da comparação" },
+                { id: "escrita", texto: "Revisar ortografia, gramática e composição do texto" },
+                { id: "ia", texto: "Revisar tudo o que foi escrito com ajuda de ChatGPT e afins" },
+                { id: "abnt", texto: "Citar as fontes na norma ABNT" }
+              ]
+            }
+          ]
+        }
+      };
+    })();
+  </script>
+
+  <!-- Lógica da interface (a mesma do site completo) -->
+  <script src="js/app.js"></script>
+</body>
+</html>

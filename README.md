@@ -88,3 +88,7 @@ Cada área tem um simulado (`#/<area>/simulado`) com 20 questões objetivas sort
 ## Publicar subindo um arquivo só
 
 `python gerar-arquivo-unico.py` gera `publicar/index.html`, com o site inteiro (CSS, JS e aulas) num único arquivo. Para publicar no GitHub Pages sem usar o terminal, basta subir esse arquivo pelo navegador. Rode o script de novo sempre que mudar alguma aula ou estilo.
+
+## Revisão da Sprint 3
+
+`sprint3.html` usa o mesmo código e as mesmas aulas, mas mostra só os assuntos da Sprint 3 e a entrega com checklist. As aulas e os textos dessa página são configurados no próprio `sprint3.html` (`window.PlataformaConfig`), e o progresso fica salvo separado do site completo.

@@ -1507,3 +1507,59 @@ main:focus, main:focus-visible { outline: none; }
 
 /* cabeçalho fixo respeita a área segura do celular */
 .site-header { top: env(safe-area-inset-top, 0px); }
+
+/* =========================================================
+   Entrega da sprint (checklist) e link do rodapé
+   ========================================================= */
+
+.entrega { margin-bottom: 44px; }
+.entrega .progress-box { margin-bottom: 22px; }
+.entrega-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px; margin-bottom: 18px; }
+.entrega-grupo h3 { font-size: 17px; margin-bottom: 12px; }
+.entrega-grupo ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.entrega-item {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 12px;
+  align-items: start;
+  padding: 13px 15px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: rgba(22, 3, 31, .55);
+  transition: border-color .2s ease, background .2s ease;
+}
+.entrega-item:hover { border-color: var(--magenta); }
+.entrega-item.is-done { border-color: var(--ok-line); background: var(--ok-bg); }
+.entrega-item input {
+  width: 20px; height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--magenta);
+  cursor: pointer;
+}
+.entrega-texto { min-width: 0; display: grid; gap: 6px; }
+.entrega-texto label { font-size: 15px; font-weight: 500; line-height: 1.5; cursor: pointer; overflow-wrap: anywhere; }
+.entrega-item.is-done .entrega-texto label { text-decoration: line-through; text-decoration-color: var(--ok-line); color: var(--text-2); }
+.entrega-pontos {
+  justify-self: start;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  padding: 2px 9px;
+  border-radius: 6px;
+  color: var(--magenta-soft);
+  background: rgba(237, 39, 136, .1);
+  border: 1px solid rgba(237, 39, 136, .4);
+}
+.entrega-links { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.entrega-link { font-size: 13px; font-weight: 500; color: var(--text-2); text-decoration: none; border-bottom: 1px dashed rgba(237, 39, 136, .55); }
+.entrega-link:hover { color: var(--magenta-soft); }
+
+.footer-link { color: var(--magenta-soft); text-decoration: none; border-bottom: 1px dashed currentColor; }
+.footer-link:hover { color: var(--magenta); }
+
+:root[data-theme="light"] .entrega-item { background: #ffffff; }
+:root[data-theme="light"] .entrega-item.is-done { background: var(--ok-bg); }
+
+@media (max-width: 640px) {
+  .entrega-grid { grid-template-columns: 1fr; }
+}
